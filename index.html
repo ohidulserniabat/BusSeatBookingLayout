@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refined Professional Bus Seat Layout</title>
+    <style>
+        :root {
+            --seat-width: 48px; /* Adjusted size */
+            --seat-height: 48px; /* Square seats */
+            --aisle-width: 28px; /* Slightly wider aisle */
+            --gap: 15px; /* More space between seats/rows */
+
+            /* Professional & Clean Color Palette */
+            --color-primary: #007bff;
+            --color-primary-dark: #0056b3;
+            --color-secondary-button: #6c757d; /* For generate button if primary is used elsewhere */
+            --color-secondary-button-dark: #5a6268;
+
+            --color-available: #e9ecef; /* Light grey/border color */
+            --color-available-bg: #ffffff; /* White background */
+            --color-available-hover-border: #007bff; /* Primary blue hover border */
+            --color-available-hover-bg: #e7f1ff; /* Light blue hover background */
+
+
+            --color-booked: #dc3545; /* Red */
+            --color-booked-dark: #c82333;
+
+            --color-selected: #28a745; /* Green */
+            --color-selected-dark: #218838;
+
+            --color-loading: #ffc107; /* Amber */
+            --color-driver: #343a40; /* Dark Grey */
+
+            --color-text: #212529; /* Dark text */
+            --color-text-light: #fff; /* White text */
+
+            --color-border: #ced4da; /* Standard border color */
+            --color-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fa; /* Very light grey background */
+            padding: 20px;
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: var(--color-text);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: normal;
+        }
+
+        .admin-controls {
+            background-color: var(--color-card-background);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--color-shadow);
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 700px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjusted responsive grid */
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .admin-controls div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-controls label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--color-text);
+            font-size: 0.95em;
+        }
+
+        .admin-controls input[type="number"],
+        .admin-controls input[type="text"],
+        .admin-controls select {
+            padding: 10px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        .admin-controls button {
+            grid-column: span 2 / auto; /* Button spans across columns on smaller screens */
+            padding: 10px 20px;
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease, transform 0.05s ease;
+            justify-self: center;
+            width: fit-content;
+        }
+
+        .admin-controls button:hover {
+            background-color: var(--color-primary-dark);
+        }
+         .admin-controls button:active {
+            transform: scale(0.98);
+        }
+
+
+        .bus-container {
+            background-color: var(--color-card-background);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 15px var(--color-shadow);
+            display: inline-block; /* Shrink to fit content */
+            text-align: center; /* Center layout elements */
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+         .bus-wrapper {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+         }
+
+
+        .bus-front, .bus-back {
+            font-weight: bold;
+            margin: 15px 0;
+            color: #555;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+
+        .driver-seat-container {
+            width: 100%;
+            display: flex;
+            margin-bottom: var(--gap);
+            padding: 0 var(--gap);
+            box-sizing: border-box;
+        }
+
+         .driver-seat-container.left { justify-content: flex-start; }
+         .driver-seat-container.right { justify-content: flex-end; }
+
+
+        .driver-seat {
+            width: var(--seat-width);
+            height: var(--seat-height);
+            background-color: var(--color-driver);
+            border: 1px solid #212529;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--color-text-light);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .bus-layout {
+            display: grid;
+            /* grid-template-columns will be set by JavaScript */
+            gap: var(--gap);
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .seat {
+            width: var(--seat-width);
+            height: var(--seat-height);
+            background-color: var(--color-available-bg);
+            border: 1px solid var(--color-available); /* Soft border */
+            border-radius: 4px; /* Slightly rounded corners */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            font-weight: normal; /* Lighter weight for text */
+            color: var(--color-text);
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            user-select: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+            position: relative;
+        }
+
+         .seat span { /* For potential future price/info */
+             font-size: 0.8em;
+             font-weight: normal;
+             margin-top: 2px;
+         }
+
+
+         .seat:not(.booked):hover {
+             background-color: var(--color-available-hover-bg);
+             border-color: var(--color-available-hover-border);
+             transform: translateY(-1px); /* Subtle lift */
+             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); /* Increased shadow on hover */
+         }
+
+
+        .seat.booked {
+            background-color: var(--color-booked);
+            border: 1px solid var(--color-booked-dark);
+            cursor: not-allowed;
+            color: var(--color-text-light);
+            box-shadow: none;
+            transform: none;
+            opacity: 0.9; /* Less opaque than before */
+        }
+
+
+        .seat.selected {
+            background-color: var(--color-selected);
+            border: 1px solid var(--color-selected-dark);
+            color: var(--color-text-light); /* White text on green */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+
+        /* --- Loading Effect --- */
+        .seat.loading {
+             background-color: var(--color-loading) !important; /* Override other colors */
+             border-color: var(--color-loading) !important; /* Match border */
+             cursor: progress !important;
+             animation: pulse 1.5s infinite ease-in-out;
+             pointer-events: none;
+             color: transparent !important; /* Hide text */
+             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important; /* Reset shadow */
+             transform: none !important; /* Reset hover transform */
+        }
+
+        .seat.loading::after { /* Use ::after for the spinner to avoid conflict with seat number */
+             content: '';
+             position: absolute;
+             top: 50%;
+             left: 50%;
+             width: 18px; /* Slightly larger spinner */
+             height: 18px;
+             margin-top: -9px;
+             margin-left: -9px;
+             border: 3px solid var(--color-text); /* Dark spinner */
+             border-top-color: transparent;
+             border-radius: 50%;
+             animation: spin 0.8s linear infinite;
+             opacity: 1;
+         }
+          /* Ensure seat number text is hidden during loading */
+         .seat.loading > span {
+             display: none;
+         }
+
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; } /* More subtle pulse */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        .aisle {
+            width: var(--aisle-width);
+        }
+
+        .total-seats-info {
+            margin-top: 30px;
+            font-weight: bold;
+            color: var(--color-text);
+            font-size: 1.1em;
+        }
+
+         /* Add Roboto font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    </style>
+</head>
+<body>
+
+    <h1>Bus Seat Booking Layout</h1>
+
+    <div class="admin-controls">
+        <div>
+            <label for="numRows">Number of Rows:</label>
+            <input type="number" id="numRows" min="1" value="12">
+        </div>
+        <div>
+            <label for="columnConfig">Column Config (e.g., 2 1 2):</label>
+            <input type="text" id="columnConfig" value="2 1 2">
+            <small>Numbers: seats per section. 1 = aisle space. e.g., "2 1 2" for 2 seats, aisle, 2 seats. "1 1 2" for 1 seat, aisle, 2 seats.</small>
+        </div>
+         <div>
+            <label for="driverPosition">Driver Position:</label>
+            <select id="driverPosition">
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+            </select>
+        </div>
+        <button id="generateLayout">Generate Layout</button>
+    </div>
+
+    <div class="bus-container">
+         <div class="bus-wrapper" id="busLayoutWrapper">
+             </div>
+    </div>
+
+    <div class="total-seats-info" id="totalSeatsInfo">
+        Total Seats: 0
+    </div>
+
+
+    <script>
+        const numRowsInput = document.getElementById('numRows');
+        const columnConfigInput = document.getElementById('columnConfig');
+        const driverPositionSelect = document.getElementById('driverPosition');
+        const generateButton = document.getElementById('generateLayout');
+        const busLayoutWrapper = document.getElementById('busLayoutWrapper');
+        const totalSeatsInfo = document.getElementById('totalSeatsInfo');
+
+        // Function to convert column index (like 0, 1, 3, 4) to seat letter (A, B, C, D)
+        function getSeatLetter(colIndex) {
+            if (colIndex >= 0 && colIndex < 26) {
+                return String.fromCharCode(65 + colIndex);
+            }
+            console.warn(`Column index ${colIndex} is out of standard letter range (A-Z).`);
+            return '?';
+        }
+
+        function generateBusLayout() {
+            busLayoutWrapper.innerHTML = ''; // Clear previous layout
+
+            const numRows = parseInt(numRowsInput.value);
+            const columnConfigString = columnConfigInput.value.trim();
+            const driverPosition = driverPositionSelect.value;
+            const columnConfig = columnConfigString.split(' ').map(Number).filter(n => !isNaN(n) && n >= 0);
+
+            if (numRows <= 0 || columnConfig.length === 0 || !['left', 'right'].includes(driverPosition)) {
+                busLayoutWrapper.innerHTML = '<p>Please enter valid numbers for rows, column configuration, and select a driver position.</p>';
+                totalSeatsInfo.textContent = 'Total Seats: 0';
+                return;
+            }
+
+            // --- Add Bus Front ---
+            const busFront = document.createElement('div');
+            busFront.className = 'bus-front';
+            busFront.textContent = 'Front';
+            busLayoutWrapper.appendChild(busFront);
+
+             // --- Add Driver Seat ---
+             const driverSeatContainer = document.createElement('div');
+             driverSeatContainer.className = 'driver-seat-container';
+             driverSeatContainer.classList.add(driverPosition); // Add 'left' or 'right' class
+             const driverSeat = document.createElement('div');
+             driverSeat.className = 'driver-seat';
+             driverSeat.textContent = 'Driver';
+             driverSeatContainer.appendChild(driverSeat);
+             busLayoutWrapper.appendChild(driverSeatContainer);
+
+
+            // --- Create Bus Layout Grid ---
+            const busLayoutGrid = document.createElement('div');
+            busLayoutGrid.className = 'bus-layout';
+
+            // Determine grid columns CSS property from config
+            let gridColumnsCSS = '';
+            columnConfig.forEach(item => {
+                if (item > 0) { // Seats
+                    gridColumnsCSS += `repeat(${item}, var(--seat-width)) `;
+                } else { // Aisle
+                     gridColumnsCSS += `var(--aisle-width) `;
+                }
+            });
+             busLayoutGrid.style.gridTemplateColumns = gridColumnsCSS.trim();
+
+
+            let totalSeatsCount = 0;
+
+            // --- Populate Seats ---
+            for (let row = 1; row <= numRows; row++) {
+                let currentSeatColIndex = 0; // Tracks seat columns (A, B, C...)
+
+                columnConfig.forEach(item => {
+                    if (item > 0) { // It's a block of seats
+                        for (let i = 0; i < item; i++) {
+                            const seat = document.createElement('div');
+                            const seatNumber = `${row}${getSeatLetter(currentSeatColIndex)}`;
+                            seat.className = 'seat';
+                            seat.dataset.seatNumber = seatNumber;
+                            seat.textContent = seatNumber;
+                            // Add a booked class randomly for demonstration
+                            if (Math.random() < 0.20) { // 20% chance of being booked
+                                seat.classList.add('booked');
+                            }
+                            busLayoutGrid.appendChild(seat);
+                            currentSeatColIndex++;
+                            totalSeatsCount++;
+                        }
+                    } else { // It's an aisle space
+                        const aisle = document.createElement('div');
+                         aisle.className = 'aisle';
+                        busLayoutGrid.appendChild(aisle);
+                        // Seat column index does *not* increment for aisles
+                    }
+                });
+            }
+
+            busLayoutWrapper.appendChild(busLayoutGrid);
+
+             // --- Add Bus Back ---
+            const busBack = document.createElement('div');
+            busBack.className = 'bus-back';
+            busBack.textContent = 'Back';
+            busLayoutWrapper.appendChild(busBack);
+
+            // --- Update Total Seats Info ---
+            totalSeatsInfo.textContent = `Total Seats: ${totalSeatsCount}`;
+
+            // Event listeners are handled by delegation on busLayoutWrapper, attached once.
+        }
+
+        // Use event delegation on the parent container for efficiency
+        // This function is called ONCE on page load
+        function attachSeatEventListeners() {
+             if (!busLayoutWrapper.dataset.clickListenerAdded) {
+                 busLayoutWrapper.addEventListener('click', function(event) {
+                     const clickedElement = event.target.closest('.seat');
+
+                     // Check if the clicked element is a seat and is not booked or currently loading
+                     if (clickedElement && !clickedElement.classList.contains('booked') && !clickedElement.classList.contains('loading')) {
+                         handleSeatClick.call(clickedElement); // Call handleSeatClick with the seat element as 'this'
+                     }
+                 });
+                 busLayoutWrapper.dataset.clickListenerAdded = 'true';
+             }
+        }
+
+        function handleSeatClick() {
+            // 'this' refers to the clicked seat element
+
+            // --- Start Loading Effect ---
+            this.classList.add('loading');
+
+            // Simulate a network request delay
+            const simulationDelay = 800; // milliseconds
+
+            setTimeout(() => {
+                // --- End Loading Effect ---
+                this.classList.remove('loading');
+
+                // --- Apply Final State (Toggle Selected for this demo) ---
+                // In a real app, you'd get the final state from the server response
+                // Example: if server responded with success:
+                this.classList.toggle('selected');
+
+                // Example: if server responded that seat is now booked:
+                // this.classList.add('booked');
+                // this.classList.remove('selected'); // Ensure it's not selected
+
+                // Example: if server responded with an error:
+                // alert('Seat selection failed. Please try again.');
+
+
+                const seatNumber = this.dataset.seatNumber;
+                if (this.classList.contains('selected')) {
+                    console.log('Seat selected:', seatNumber);
+                    // Add seatNumber to a list/array of selected seats
+                } else {
+                    console.log('Seat deselected:', seatNumber);
+                    // Remove seatNumber from the list/array
+                }
+
+            }, simulationDelay);
+        }
+
+
+        // --- Initial Setup ---
+        generateButton.addEventListener('click', generateBusLayout);
+
+        // Generate layout on page load with default values
+        generateBusLayout();
+        // Attach delegation listener once on page load
+        attachSeatEventListeners();
+
+    </script>
+
+</body>
+</html>
